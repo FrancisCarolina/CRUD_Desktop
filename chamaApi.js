@@ -1,6 +1,6 @@
 // Obtém uma referência ao elemento da tabela onde os personagens serão exibidos.
 const corpoTabelaPersonagens = document.getElementById('corpoTabelaPersonagens');
-let user;
+let usuario;
 
 // Função que busca os dados da API e preenche a tabela com os usuarios.
 
@@ -135,39 +135,49 @@ document.addEventListener('click', function (event){
         const idUsuario = event.target.dataset.id;
         deletarUsuario(idUsuario);
     }else if(event.target && event.target.classList.contains('btn-edit')){
-        user = event.target.dataset.id;
-        $('#editarUsuario').modal('show');
+        const user = event.target.dataset.id;
+        carregarDadosEditar(user);
     }
 })
-function editarUsuario(user, nome, email, disciplina){
-    axios.get(`http://infopguaifpr.com.br:3052/pegarUsuarioPeloId/${user}`).then(response =>{
+function carregarDadosEditar(id){
+    $('#editarUsuario').modal('show');
+    axios.get(`http://infopguaifpr.com.br:3052/pegarUsuarioPeloId/${id}`).then(response =>{
         console.log("USUARIO: ", response.data.usuario);
-        let usuario = response.data.usuario;
-        usuario.nome = nome;
-        usuario.email = email;
-        usuario.disciplina = disciplina;
-        axios.put(`http://infopguaifpr.com.br:3052/atualizarUsuario/${user}`, usuario, {
-            headers:{
-                'Content-Type': 'application/json'
-            }
-        }).then(response =>{
-            console.log("Usuario editado com sucesso", response.data);
-
-            $('#editarUsuario').modal('hide');
-
-            alert('Usuario editado com sucesso');
-
-            buscarDadosEPreencherTabela();
-        }).catch(error =>{
-            alert("Erro ao editar: ", error);
-        })
+        
+        usuario = response.data.usuario;
+        
+        document.querySelector("#nomeEditar").value = usuario.nome;
+        document.querySelector("#emailEditar").value = usuario.email;
+        document.querySelector("#disciplinaEditar").value = usuario.disciplina;
     }).catch(error =>{
-        alert("Erro ao recuperar usuario: ", error);
+            alert("Erro ao recuperar usuario: ", error);
     })
+}
+function editarUsuario(user, nome, email, disciplina){
+   
+    user.nome = nome;
+    user.email = email;
+    user.disciplina = disciplina;
+    axios.put(`http://infopguaifpr.com.br:3052/atualizarUsuario/${usuario.id}`, user, {
+        headers:{
+            'Content-Type': 'application/json'
+        }
+    }).then(response =>{
+        console.log("Usuario editado com sucesso", response.data);
+
+        $('#editarUsuario').modal('hide');
+
+        alert('Usuario editado com sucesso');
+
+        buscarDadosEPreencherTabela();
+    }).catch(error =>{
+        alert("Erro ao editar: ", error);
+    })
+    
 }
 document.querySelector("#btnEditarUsuario").addEventListener("click", function(){
     const nome = document.querySelector("#nomeEditar").value;
     const email = document.querySelector("#emailEditar").value;
     const disciplina = document.querySelector("#disciplinaEditar").value;
-    editarUsuario(user, nome, email, disciplina);
+    editarUsuario(usuario, nome, email, disciplina);
 })
